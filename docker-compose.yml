@@ -27,7 +27,8 @@ services:
         working_dir: /app
         networks:
             - meysametammar_library_network
-
+        ports:
+            - 8000:8000
     phpmyadmin:
         image: phpmyadmin/phpmyadmin
         container_name: meysametammar_lib-phpmyadmin
