@@ -1,0 +1,62 @@
+version: "3"
+services:
+    #MySQL Service
+    db:
+        image: mysql:latest
+        container_name: meysametammar_lib-db
+        restart: always
+        tty: true
+        volumes:
+            - ./dbdata:/var/lib/mysql
+        env_file:
+            - ./mysql.env
+        networks:
+            - meysametammar_library_network
+    #PHP Service
+    app:
+        build:
+            context: ./library_core
+            dockerfile: Dockerfile
+        container_name: meysametammar_lib-app
+        restart: always
+        tty: true
+        env_file:
+            - ./library_core/.env
+        volumes:
+            - ./library_core:/app
+        working_dir: /app
+        networks:
+            - meysametammar_library_network
+
+    phpmyadmin:
+        image: phpmyadmin/phpmyadmin
+        container_name: meysametammar_lib-phpmyadmin
+        links:
+            - db
+        env_file:
+            - phpmyadmin.env
+        restart: always
+        networks:
+            - meysametammar_library_network
+        ports:
+            - 8081:80
+
+    #Nginx Service
+    # webserver:
+    #     image: nginx:alpine
+    #     container_name: meysametammar_lib-webserver
+    #     restart: always
+    #     tty: true
+    #     ports:
+    #         - "8040:80"
+    #     volumes:
+    #         - ./dashboard:/var/www
+    #         - ./nginx/conf.d/:/etc/nginx/conf.d/
+    #         - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+    #     networks:
+    #         - meysametammar_library_network
+
+#Docker Networks
+networks:
+    meysametammar_library_network:
+        driver: bridge
