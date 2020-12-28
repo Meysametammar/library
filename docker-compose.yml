@@ -12,23 +12,56 @@ services:
             - ./mysql.env
         networks:
             - meysametammar_library_network
+
+    redis:
+        image: "redis:alpine"
+        volumes:
+            - "./redisdata:/data"
+        networks:
+            - meysametammar_library_network
+
     #PHP Service
+    # app:
+    #     build:
+    #         context: ./library_core
+    #         dockerfile: Dockerfile
+    #     container_name: meysametammar_lib-app
+    #     restart: always
+    #     tty: true
+    #     env_file:
+    #         - ./library_core/.env
+    #     volumes:
+    #         - ./library_core:/app
+    #     working_dir: /app
+    #     networks:
+    #         - meysametammar_library_network
+    #     ports:
+    #         - 8000:8000
+
     app:
         build:
-            context: ./library_core
+            context: ./library_core/vendor/laravel/sail/runtimes/8.0
             dockerfile: Dockerfile
-        container_name: meysametammar_lib-app
+            args:
+                WWWGROUP: "1000"
+        container_name: "meysametammar_lib-app"
         restart: always
-        tty: true
+        image: sail-8.0/app
+        ports:
+            - "8080:80"
+        environment:
+            WWWUSER: "1000"
+            LARAVEL_SAIL: 1
         env_file:
             - ./library_core/.env
         volumes:
-            - ./library_core:/app
-        working_dir: /app
+            - "./library_core:/var/www/html"
         networks:
             - meysametammar_library_network
-        ports:
-            - 8000:8000
+        depends_on:
+            - db
+            - redis
+
     phpmyadmin:
         image: phpmyadmin/phpmyadmin
         container_name: meysametammar_lib-phpmyadmin
